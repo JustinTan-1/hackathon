@@ -23,7 +23,7 @@ face_names = []
 process_frame = True
 
 t = 0
-PORT = "COM3"         
+PORT = "/dev/ttyACM0"         
 BAUD = 9600
 
 while True:
