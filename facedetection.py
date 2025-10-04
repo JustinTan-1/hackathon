@@ -27,6 +27,11 @@ PORT = "/dev/ttyACM0"
 BAUD = 9600
 
 while True:
+    --Receiving Code
+    line = arduino.readline().decode('utf-8').strip()  # Read a line
+    if line:  # If not empty
+        print("Received:", line)
+    
     # ret -> did it work?
     # frame -> actual image
     ret, frame = cap.read()
