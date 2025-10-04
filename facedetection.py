@@ -1,6 +1,8 @@
 import numpy as np
 import cv2
 import face_recognition
+import serial
+import time
 
 cap = cv2.VideoCapture(0)
 example_face = face_recognition.load_image_file("./assets/Justin.jpg")
@@ -19,6 +21,10 @@ face_encodings = []
 face_names = []
 
 process_frame = True
+
+t = 0
+PORT = "COM3"         
+BAUD = 9600
 
 while True:
     # ret -> did it work?
@@ -40,6 +46,7 @@ while True:
             best_index = np.argmin(face_distances)
             if matches[best_index]:
                 name = known_face_names[best_index]
+                t = 1
             face_names.append(name)
     for name, (top,right,bottom,left) in zip(face_names, face_locations):
         top *= 4
@@ -49,9 +56,21 @@ while True:
         cv2.rectangle(frame, (left, top), (right, bottom), (0,0,225), 2)
         cv2.putText(frame, name, (left, bottom + 20), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0,0,255), 1)
     
+    if t == 1:
+        try:
+            with serial.Serial(PORT, BAUD, timeout=1) as arduino:
+                time.sleep(2)
+                message = f"{t}\n"   
+                arduino.write(message.encode('utf-8'))
+                print("Sent:", t)
+        except Exception as e:
+            print(e)
+    t = 0 
+     
     cv2.imshow("frame", frame)
     if cv2.waitKey(1) == ord('q'):
         break
 
 cap.release()
 cv2.destroyAllWindows()
+
